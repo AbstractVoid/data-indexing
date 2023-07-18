@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "target": "ES2018", 
+    "module": "commonjs",
+    "strict": true,
+    "esModuleInterop": true,
+    "moduleResolution": "Node",
+    "outDir": "dist",
+    "typeRoots": [
+      "node_modules/@types"
+    ],
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true
+  },
+  "ts-node": {
+    "esm": true
+  },
+  "include": ["src"],
+  "exclude": ["node_modules"]
+}

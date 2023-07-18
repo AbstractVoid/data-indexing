@@ -1,0 +1,25 @@
+{
+  "name": "data-indexing",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "main": "npx ts-node src/index.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AbstractVoid/data-indexing.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AbstractVoid/data-indexing/issues"
+  },
+  "homepage": "https://github.com/AbstractVoid/data-indexing#readme",
+  "devDependencies": {
+    "typescript": "^5.1.6"
+  },
+  "dependencies": {
+    "@types/node": "^20.4.2",
+    "ts-node": "^10.9.1"
+  }
+}
