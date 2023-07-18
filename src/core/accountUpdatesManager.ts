@@ -34,7 +34,6 @@ export default class AccountUpdatesManager extends EventEmitter {
                     console.log('\nAccount update callback:', accountUpdate);
                     callbackSuccessful = true;
                 }
-                console.log("Emitted event");
                 this.emit("callbackResult", accountUpdate, callbackSuccessful);
             }, accountUpdate.callbackTimeMs);
         }
