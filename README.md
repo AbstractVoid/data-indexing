@@ -8,6 +8,7 @@ Ensure Node.js is installed. This project requires Node.js v14.0.0 or above.
 
 ### Running the code:
 Clone the repository: `git clone https://github.com/AbstractVoid/data-indexing.git`
+
 Navigate into the project directory: `cd data-indexing`
 
 Install dependencies: 
@@ -33,7 +34,7 @@ The application uses Node.js for its effective asynchronous operations handling 
 
 The design patterns chosen for this project were primarily driven by the need to handle concurrency and asynchronous operations.
 
-Promise Chaining: When multiple updates for the same account arrive in an asynchronous manner, Promise chaining ensures that they are processed in the order they arrive.
+Promise Chaining: When multiple updates for the same account arrive in an asynchronous manner, Promise chaining ensures that they are processed in the order they arrive. Concurrent updates are handled carefully to prevent simultaneous modification of the `accountUpdates` variable, maintaining data integrity.
 
 Singleton Pattern for the Manager Class: The manager class is designed as a singleton to ensure a single source of truth for account updates.
 
