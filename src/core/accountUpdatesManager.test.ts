@@ -3,13 +3,14 @@ import AccountUpdatesManager from './accountUpdatesManager';
 import { getAccountUpdateKey, getRandomInt } from './helpers';
 
 describe('AccountUpdatesManager', () => {
+  let logSpy: jest.SpyInstance;
   let accountUpdatesManager: AccountUpdatesManager;
   let auctionDataUpdate: AccountUpdate;
   let auctionDataUpdateKey: string;
   let metadataUpdate: AccountUpdate;
 
   beforeEach(() => {
-
+    logSpy = jest.spyOn(console, 'log');
     accountUpdatesManager = new AccountUpdatesManager();
     auctionDataUpdate = {
       id: "hhpGbCqzxJDCCHEDFXXD3b8XUbTRUygDpc36qQZdy7pL",
@@ -37,6 +38,10 @@ describe('AccountUpdatesManager', () => {
     };
   });
 
+  afterEach(() => {
+    logSpy.mockRestore();
+  });
+
   test('addAccountUpdate should add account', () => {
     const key = accountUpdatesManager.addAccountUpdate(auctionDataUpdate);
     expect(key).toBe(auctionDataUpdateKey);
@@ -46,33 +51,27 @@ describe('AccountUpdatesManager', () => {
   });
 
   test('processUpdate should update if version is higher', async () => {
-    const firstUpdate = accountUpdatesManager.processUpdate(auctionDataUpdate);
+    accountUpdatesManager.processUpdate(auctionDataUpdate);
     
     const newUpdateData = { ...auctionDataUpdate, tokens: auctionDataUpdate.tokens + getRandomInt(500), version: auctionDataUpdate.version + getRandomInt(10) };
-    const secondUpdate = accountUpdatesManager.processUpdate(newUpdateData);
+    accountUpdatesManager.processUpdate(newUpdateData);
     
-    const firstUpdateResult = await firstUpdate;
-    const secondUpdateResult = await secondUpdate;
     const accountUpdate = accountUpdatesManager.getAccountUpdate(auctionDataUpdateKey);
     
-    expect(firstUpdateResult).toBe(false);
-    expect(secondUpdateResult).toBe(true);
     expect(accountUpdate).toBe(newUpdateData);
+    // TODO: check console logs for callback with correct version
   });
 
   test('processUpdate should NOT update if version is lower for an existing matching update', async () => {
-    const firstUpdate = accountUpdatesManager.processUpdate(auctionDataUpdate);
+    accountUpdatesManager.processUpdate(auctionDataUpdate);
     
     const newUpdateData = { ...auctionDataUpdate, tokens: 0, version: 0 };
-    const secondUpdate = accountUpdatesManager.processUpdate(newUpdateData);
+    accountUpdatesManager.processUpdate(newUpdateData);
     
-    const firstUpdateResult = await firstUpdate;
-    const secondUpdateResult = await secondUpdate;
     const accountUpdate = accountUpdatesManager.getAccountUpdate(auctionDataUpdateKey);
     
-    expect(firstUpdateResult).toBe(true);
-    expect(secondUpdateResult).toBe(false);
     expect(accountUpdate).toBe(auctionDataUpdate);
+    // TODO: check console logs for callback with correct version
   });
 
   // TODO: add more tests

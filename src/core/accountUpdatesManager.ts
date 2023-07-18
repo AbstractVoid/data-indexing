@@ -2,7 +2,7 @@ import { AccountUpdate } from "./types";
 import { getAccountUpdateKey } from "./helpers";
 
 export default class AccountUpdatesManager {
-    private updatesProcessing: Map<string, Promise<boolean>> = new Map();
+    private updatesProcessing: Map<string, Promise<void>> = new Map();
     private accountUpdates: Map<string, AccountUpdate>;
 
     constructor() {
@@ -12,25 +12,24 @@ export default class AccountUpdatesManager {
     ingestUpdate(accountUpdate: AccountUpdate): void {
         const updateKey = getAccountUpdateKey(accountUpdate.id, accountUpdate.parentProgramSubType);
         const processing = this.updatesProcessing.get(updateKey) || Promise.resolve(false);
-        this.updatesProcessing.set(updateKey, processing.then(() => this.processUpdate(accountUpdate)));
+        const newProcessing = processing.then(() => this.processUpdate(accountUpdate));
+        this.updatesProcessing.set(updateKey, newProcessing);
     }
 
-    async processUpdate(accountUpdate: AccountUpdate): Promise<boolean> {
+    processUpdate(accountUpdate: AccountUpdate): void {
+        // if (accountUpdate.version === undefined) {
+        //     console.warn("Account update added without version info:", accountUpdate);
+        // }
+
         const updateKey = this.addAccountUpdate(accountUpdate);
 
         if (updateKey) {
-            return new Promise((resolve, reject) => {
-                setTimeout(() => {
-                    if (this.accountUpdates.get(updateKey)!.version === accountUpdate.version) {
-                        console.log('\nAccount update callback:', accountUpdate);
-                        resolve(true);
-                    }
-                    resolve(false);
-                }, accountUpdate.callbackTimeMs);
-            });
+            setTimeout(() => {
+                if (this.accountUpdates.get(updateKey)!.version === accountUpdate.version) {
+                    console.log('\nAccount update callback:', accountUpdate);
+                }
+            }, accountUpdate.callbackTimeMs);
         }
-
-        return false;
     }
 
     addAccountUpdate(accountUpdate: AccountUpdate): string | undefined {
