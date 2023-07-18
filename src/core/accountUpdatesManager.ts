@@ -4,11 +4,12 @@ import { AccountUpdate } from "./types";
 import { getAccountUpdateKey } from "./helpers";
 
 export default class AccountUpdatesManager extends EventEmitter {   
-    public updatesProcessing: Map<string, Promise<void>> = new Map();
+    public updatesProcessing: Map<string, Promise<void>>;
     private accountUpdates: Map<string, AccountUpdate>;
 
     constructor() {
         super();
+        this.updatesProcessing = new Map();
         this.accountUpdates = new Map();
     }
 
