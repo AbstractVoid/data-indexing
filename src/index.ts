@@ -11,15 +11,29 @@ async function readJsonFile(filepath: string): Promise<AccountUpdate[]> {
     return JSON.parse(data);
 }
 
-async function mockAccountProcessing() {
+async function processAccounts(accountUpdatesManager: AccountUpdatesManager) {
     const accountUpdates: AccountUpdate[] = await readJsonFile('accounts.json');
-    const accountUpdatesManager = new AccountUpdatesManager();
 
-    accountUpdates.forEach((update) => {
-        setTimeout(() => {
-            accountUpdatesManager.ingestUpdate(update);
-        }, Math.random() * 1000);
+    const promises = accountUpdates.map((update) => {
+        return new Promise<void>((resolve) => {
+            setTimeout(() => {
+                accountUpdatesManager.ingestUpdate(update);
+                resolve();
+            }, Math.random() * 1000);
+        });
     });
+
+    await Promise.all(promises);
 }
 
-mockAccountProcessing();
+function main() {
+    const accountUpdatesManager = new AccountUpdatesManager();
+
+    processAccounts(accountUpdatesManager).then(() => {
+        console.log("\n\n========== HIGHEST TOKEN ACCOUNT UPDATES ==========\n");
+        console.log(accountUpdatesManager.getHighestTokenAccountUpdates());
+        console.log("\n========== END HIGHEST TOKEN ACCOUNT UPDATES ==========\n\n");
+    })
+}
+
+main();

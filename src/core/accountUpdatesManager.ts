@@ -2,7 +2,7 @@ import { AccountUpdate } from "./types";
 import { getAccountUpdateKey } from "./helpers";
 
 export default class AccountUpdatesManager {
-    public updatesProcessing: Map<string, Promise<void>> = new Map();
+    private updatesProcessing: Map<string, Promise<void>> = new Map();
     private accountUpdates: Map<string, AccountUpdate>;
 
     constructor() {
@@ -25,12 +25,12 @@ export default class AccountUpdatesManager {
 
         setTimeout(() => {
             if (this.accountUpdates.get(updateKey)!.version === accountUpdate.version) {
-                console.log('Account update callback:', accountUpdate);
+                console.log('\nAccount update callback:', accountUpdate);
             }
         }, accountUpdate.callbackTimeMs);
     }
 
-    getHighestTokenUpdates(): Map<string, AccountUpdate[]> {
+    getHighestTokenAccountUpdates(): Map<string, AccountUpdate[]> {
         const accountUpdates = Array.from(this.accountUpdates.values());
         const uniqueSubTypes = Array.from(new Set(accountUpdates.map(update => update.parentProgramSubType)));
         
