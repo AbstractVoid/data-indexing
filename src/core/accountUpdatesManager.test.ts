@@ -3,14 +3,13 @@ import AccountUpdatesManager from './accountUpdatesManager';
 import { getAccountUpdateKey, getRandomInt } from './helpers';
 
 describe('AccountUpdatesManager', () => {
-  let logSpy: jest.SpyInstance;
   let accountUpdatesManager: AccountUpdatesManager;
   let auctionDataUpdate: AccountUpdate;
   let auctionDataUpdateKey: string;
   let metadataUpdate: AccountUpdate;
 
   beforeEach(() => {
-    logSpy = jest.spyOn(console, 'log');
+    jest.useFakeTimers();
     accountUpdatesManager = new AccountUpdatesManager();
     auctionDataUpdate = {
       id: "hhpGbCqzxJDCCHEDFXXD3b8XUbTRUygDpc36qQZdy7pL",
@@ -39,8 +38,14 @@ describe('AccountUpdatesManager', () => {
   });
 
   afterEach(() => {
-    logSpy.mockRestore();
+    jest.useRealTimers();
   });
+
+  function validateCallbackResults(expectedResults: Map<AccountUpdate, boolean>) {
+    accountUpdatesManager.on("callbackResult", (accountUpdate: AccountUpdate, callbackResult: boolean) => {
+      expect(callbackResult).toEqual(expectedResults.get(accountUpdate));
+    });
+  }
 
   test('addAccountUpdate should add account', () => {
     const key = accountUpdatesManager.addAccountUpdate(auctionDataUpdate);
@@ -50,29 +55,39 @@ describe('AccountUpdatesManager', () => {
     expect(storedAccount).toBe(auctionDataUpdate);
   });
 
-  test('processUpdate should update if version is higher', async () => {
-    accountUpdatesManager.processUpdate(auctionDataUpdate);
-    
+  test('ingestUpdate should update if version is higher', async () => {
     const newUpdateData = { ...auctionDataUpdate, tokens: auctionDataUpdate.tokens + getRandomInt(500), version: auctionDataUpdate.version + getRandomInt(10) };
-    accountUpdatesManager.processUpdate(newUpdateData);
+    
+    const callbackResultsMap = new Map();
+    callbackResultsMap.set(auctionDataUpdate, false);``
+    callbackResultsMap.set(newUpdateData, true);
+    validateCallbackResults(callbackResultsMap);
+
+    const promises = [auctionDataUpdate, newUpdateData].map(update => {
+      return accountUpdatesManager.ingestUpdate(update);
+    });
+    await Promise.all(promises);
+    jest.runAllTimers();
     
     const accountUpdate = accountUpdatesManager.getAccountUpdate(auctionDataUpdateKey);
-    
     expect(accountUpdate).toBe(newUpdateData);
-    // TODO: check console logs for callback with correct version
   });
 
-  test('processUpdate should NOT update if version is lower for an existing matching update', async () => {
-    accountUpdatesManager.processUpdate(auctionDataUpdate);
-    
+  test('ingestUpdate should NOT update if version is lower for an existing matching update', async () => {
     const newUpdateData = { ...auctionDataUpdate, tokens: 0, version: 0 };
-    accountUpdatesManager.processUpdate(newUpdateData);
+    
+    const callbackResultsMap = new Map();
+    callbackResultsMap.set(auctionDataUpdate, true);
+    callbackResultsMap.set(newUpdateData, false);
+    validateCallbackResults(callbackResultsMap);
+
+    const promises = [auctionDataUpdate, newUpdateData].map(update => {
+      return accountUpdatesManager.ingestUpdate(update);
+    });
+    await Promise.all(promises);
+    jest.runAllTimers();
     
     const accountUpdate = accountUpdatesManager.getAccountUpdate(auctionDataUpdateKey);
-    
     expect(accountUpdate).toBe(auctionDataUpdate);
-    // TODO: check console logs for callback with correct version
   });
-
-  // TODO: add more tests
 });
