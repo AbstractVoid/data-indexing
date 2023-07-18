@@ -1,7 +1,7 @@
 
 export interface AccountUpdate {
     id: string;
-    parentProgramId: string;
+    parentProgram: string;
     parentProgramSubType: string;
     tokens: number;
     data: any;
