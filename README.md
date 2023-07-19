@@ -36,7 +36,7 @@ The design patterns chosen for this project were primarily driven by the need to
 
 Promise Chaining: When multiple updates for the same account arrive in an asynchronous manner, Promise chaining ensures that they are processed in the order they arrive. Concurrent updates are handled carefully to prevent simultaneous modification of the `accountUpdates` variable, maintaining data integrity.
 
-Singleton Pattern for the Manager Class: The manager class is designed as a singleton to ensure a single source of truth for account updates.
+Manager Class: The manager class is used to handle account updates. While it's not a singleton, it's designed to operate as a centralized source of truth for these updates within its scope. Please note that if multiple instances are created, they will not share state. If shared state across instances is necessary, further design considerations such as implementing the Singleton pattern would be needed
 
 Event-driven Programming: Event-driven programming is used to emit events after processing each update. This is particularly useful for testing and could also be used for triggering other actions in a larger system.
 
