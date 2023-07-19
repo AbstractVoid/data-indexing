@@ -4,13 +4,15 @@ import { AccountUpdate } from "./types";
 import { getAccountUpdateKey } from "./helpers";
 
 export default class AccountUpdatesManager extends EventEmitter {   
-    public updatesProcessing: Map<string, Promise<void>>;
+    private updatesProcessing: Map<string, Promise<void>>;
     private accountUpdates: Map<string, AccountUpdate>;
+    private callbacks: Map<string, any>;
 
     constructor() {
         super();
         this.updatesProcessing = new Map();
         this.accountUpdates = new Map();
+        this.callbacks = new Map();
     }
 
     ingestUpdate(accountUpdate: AccountUpdate): Promise<void> {
@@ -18,39 +20,39 @@ export default class AccountUpdatesManager extends EventEmitter {
         const processing = this.updatesProcessing.get(updateKey) || Promise.resolve(false);
         const newProcessing = processing.then(() => this.processUpdate(accountUpdate));
         this.updatesProcessing.set(updateKey, newProcessing);
-        return newProcessing
+        return newProcessing;
     }
 
     processUpdate(accountUpdate: AccountUpdate): void {
-        if (accountUpdate.version === undefined) {
-            console.warn("Account update added without version info:", accountUpdate);
-        }
-
         const updateKey = this.addAccountUpdate(accountUpdate);
 
         if (updateKey) {
-            setTimeout(() => {
-                let callbackSuccessful = false;
-                if (this.accountUpdates.get(updateKey)!.version === accountUpdate.version) {
-                    console.log("\nAccount update callback:", accountUpdate);
-                    callbackSuccessful = true;
-                } else {
-                    console.log("\nIgnored old callback");
-                }
-                this.emit("callbackResult", accountUpdate, callbackSuccessful);
+            const callback = setTimeout(() => {
+                console.log("\nAccount update callback:", accountUpdate);
+                this.emit("callbackResult");
             }, accountUpdate.callbackTimeMs);
+            
+            this.callbacks.set(updateKey, callback);
         }
     }
 
     addAccountUpdate(accountUpdate: AccountUpdate): string | undefined {
         const updateKey = getAccountUpdateKey(accountUpdate.id, accountUpdate.parentProgramSubType);
+
         if (this.accountUpdates.has(updateKey) && this.accountUpdates.get(updateKey)!.version >= accountUpdate.version) {
-            console.log("Ignored old account update");
+            console.log(`\nIgnored old account update: ${updateKey}:${accountUpdate.version}`);
             return undefined;
         }
 
         this.accountUpdates.set(updateKey, accountUpdate);
-        console.log("Indexed:", updateKey);
+        console.log(`\nIndexed update: ${updateKey}:${accountUpdate.version}`);
+        
+        if (this.callbacks.has(updateKey)) {
+            clearTimeout(this.callbacks.get(updateKey));
+            this.callbacks.delete(updateKey);
+            console.log(`\nIgnored old callback: ${updateKey}:${accountUpdate.version}`);
+        }
+
         return updateKey;
     }
 

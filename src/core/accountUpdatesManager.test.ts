@@ -4,12 +4,16 @@ import { getAccountUpdateKey, getRandomInt } from './helpers';
 
 describe('AccountUpdatesManager', () => {
   let accountUpdatesManager: AccountUpdatesManager;
+  let mockCallbackFn: jest.Mock;
   let accountUpdateData: AccountUpdate;
   let accountUpdateDataKey: string;
 
   beforeEach(() => {
     jest.useFakeTimers();
     accountUpdatesManager = new AccountUpdatesManager();
+    mockCallbackFn = jest.fn();
+    accountUpdatesManager.on("callbackResult", mockCallbackFn);
+  
     accountUpdateData = {
       id: "hhpGbCqzxJDCCHEDFXXD3b8XUbTRUygDpc36qQZdy7pL",
       parentProgram: "auctxRXPeJoc4817jDhf4HbjnhEcr1cCXenosMhK5R8",
@@ -29,12 +33,6 @@ describe('AccountUpdatesManager', () => {
     jest.useRealTimers();
   });
 
-  function validateCallbackResults(expectedResults: Map<AccountUpdate, boolean>) {
-    accountUpdatesManager.on("callbackResult", (accountUpdate: AccountUpdate, callbackResult: boolean) => {
-      expect(callbackResult).toEqual(expectedResults.get(accountUpdate));
-    });
-  }
-
   test('addAccountUpdate should add account', () => {
     const key = accountUpdatesManager.addAccountUpdate(accountUpdateData);
     expect(key).toBe(accountUpdateDataKey);
@@ -45,11 +43,6 @@ describe('AccountUpdatesManager', () => {
 
   test('ingestUpdate should update if version is higher', async () => {
     const newUpdateData = { ...accountUpdateData, tokens: accountUpdateData.tokens + getRandomInt(500), version: accountUpdateData.version + getRandomInt(10) };
-    
-    const callbackResultsMap = new Map();
-    callbackResultsMap.set(accountUpdateData, false);
-    callbackResultsMap.set(newUpdateData, true);
-    validateCallbackResults(callbackResultsMap);
 
     const promises = [accountUpdateData, newUpdateData].map(update => {
       return accountUpdatesManager.ingestUpdate(update);
@@ -58,15 +51,13 @@ describe('AccountUpdatesManager', () => {
     jest.runAllTimers();
     
     const accountUpdate = accountUpdatesManager.getAccountUpdate(accountUpdateDataKey);
+
+    expect(mockCallbackFn).toHaveBeenCalledTimes(1);
     expect(accountUpdate).toBe(newUpdateData);
   });
 
   test('ingestUpdate should NOT update if version is lower for an existing matching update', async () => {
     const newUpdateData = { ...accountUpdateData, tokens: 0, version: 0 };
-    
-    const callbackResultsMap = new Map();
-    callbackResultsMap.set(accountUpdateData, true);
-    validateCallbackResults(callbackResultsMap);
 
     const promises = [accountUpdateData, newUpdateData].map(update => {
       return accountUpdatesManager.ingestUpdate(update);
@@ -75,6 +66,8 @@ describe('AccountUpdatesManager', () => {
     jest.runAllTimers();
     
     const accountUpdate = accountUpdatesManager.getAccountUpdate(accountUpdateDataKey);
+
+    expect(mockCallbackFn).toHaveBeenCalledTimes(1);
     expect(accountUpdate).toBe(accountUpdateData);
   });
 });
