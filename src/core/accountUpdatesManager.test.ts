@@ -1,5 +1,5 @@
 import AccountUpdatesManager from './accountUpdatesManager';
-import { getAccountUpdateKey, getRandomInt } from './helpers';
+import { getAccountUpdateKey, getRandomInt, generateRandomString } from './helpers';
 import { AccountUpdate } from './types';
 import { CALLBACK_EVENT_NAME } from './constants';
 
@@ -72,7 +72,7 @@ describe('AccountUpdatesManager', () => {
     expect(accountUpdate).toBe(accountUpdateData);
   });
 
-  test('Ingesting lots of matching updates but only one callback should be called', async () => {
+  test('Ingesting only 2 unique updates should result in only 2 callbacks', async () => {
     const accountUpdates = Array.from(Array(10).keys()).map(versionInc => {
       const callbackMs = Math.random() * 2000 + 1000;
       return {
@@ -82,12 +82,17 @@ describe('AccountUpdatesManager', () => {
       };
     });
 
+    accountUpdates.push({
+      ...accountUpdateData,
+      id: generateRandomString(44)
+    });
+
     const promises = accountUpdates.map(update => {
       return accountUpdatesManager.ingestUpdate(update);
     });
     await Promise.all(promises);
     jest.runAllTimers();
 
-    expect(mockCallbackFn).toHaveBeenCalledTimes(1);
+    expect(mockCallbackFn).toHaveBeenCalledTimes(2);
   });
 });
