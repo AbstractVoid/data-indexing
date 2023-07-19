@@ -43,7 +43,11 @@ describe('AccountUpdatesManager', () => {
   });
 
   test('ingestUpdate should update if version is higher', async () => {
-    const newUpdateData = { ...accountUpdateData, tokens: accountUpdateData.tokens + getRandomInt(500), version: accountUpdateData.version + getRandomInt(10) };
+    const newUpdateData = {
+      ...accountUpdateData,
+      tokens: accountUpdateData.tokens + getRandomInt(500),
+      version: accountUpdateData.version + getRandomInt(10)
+    };
 
     const promises = [accountUpdateData, newUpdateData].map(update => {
       return accountUpdatesManager.ingestUpdate(update);

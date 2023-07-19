@@ -1,8 +1,8 @@
 import { EventEmitter } from 'events';
 
-import { AccountUpdate } from "./types";
-import { CALLBACK_EVENT_NAME } from "./constants";
-import { getAccountUpdateKey } from "./helpers";
+import { AccountUpdate } from './types';
+import { CALLBACK_EVENT_NAME } from './constants';
+import { getAccountUpdateKey } from './helpers';
 
 export default class AccountUpdatesManager extends EventEmitter {   
     private updatesProcessing: Map<string, Promise<void>> = new Map();
