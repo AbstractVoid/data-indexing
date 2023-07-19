@@ -4,7 +4,7 @@
 
 ### Prerequisites:
 
-Ensure Node.js is installed. This project requires Node.js v14.0.0 or above.
+Ensure that Node.js is installed on your system. This project has been tested and confirmed to work with Node.js version 16.17.0.
 
 ### Running the code:
 Clone the repository: `git clone https://github.com/AbstractVoid/data-indexing.git`
