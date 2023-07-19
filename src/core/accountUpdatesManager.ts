@@ -5,16 +5,9 @@ import { CALLBACK_EVENT_NAME } from "./constants";
 import { getAccountUpdateKey } from "./helpers";
 
 export default class AccountUpdatesManager extends EventEmitter {   
-    private updatesProcessing: Map<string, Promise<void>>;
-    private accountUpdates: Map<string, AccountUpdate>;
-    private callbacks: Map<string, any>;
-
-    constructor() {
-        super();
-        this.updatesProcessing = new Map();
-        this.accountUpdates = new Map();
-        this.callbacks = new Map();
-    }
+    private updatesProcessing: Map<string, Promise<void>> = new Map();
+    private accountUpdates: Map<string, AccountUpdate> = new Map();
+    private callbacks: Map<string, any> = new Map();
 
     ingestUpdate(accountUpdate: AccountUpdate): Promise<void> {
         const updateKey = getAccountUpdateKey(accountUpdate.id, accountUpdate.parentProgramSubType);
