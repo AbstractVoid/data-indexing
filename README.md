@@ -47,4 +47,4 @@ The design patterns used, as well as the overall structure of the code and data,
 
 The specific tools or libraries used for observability and monitoring would depend on the technology stack or infrastructure in use. However, we would want to ensure comprehensive logging of errors and key events, and regular reporting of critical metrics (such as system performance and resource usage).
 
-On a high level, we would monitor system performance (response times, throughput), resource usage (CPU, memory, disk space, network I/O), and error rates. Alerts could be set up for when specific thresholds meet or exceed expected values for various metrics.
+On a high level, we would monitor system performance (response times, throughput), resource usage (CPU, memory), and error rates. Alerts could be set up for when specific thresholds meet or exceed expected values for various metrics.
