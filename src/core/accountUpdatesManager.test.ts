@@ -1,6 +1,7 @@
-import { AccountUpdate } from './types';
 import AccountUpdatesManager from './accountUpdatesManager';
 import { getAccountUpdateKey, getRandomInt } from './helpers';
+import { AccountUpdate } from './types';
+import { CALLBACK_EVENT_NAME } from './constants';
 
 describe('AccountUpdatesManager', () => {
   let accountUpdatesManager: AccountUpdatesManager;
@@ -12,7 +13,7 @@ describe('AccountUpdatesManager', () => {
     jest.useFakeTimers();
     accountUpdatesManager = new AccountUpdatesManager();
     mockCallbackFn = jest.fn();
-    accountUpdatesManager.on("callbackResult", mockCallbackFn);
+    accountUpdatesManager.on(CALLBACK_EVENT_NAME, mockCallbackFn);
   
     accountUpdateData = {
       id: "hhpGbCqzxJDCCHEDFXXD3b8XUbTRUygDpc36qQZdy7pL",

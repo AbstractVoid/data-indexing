@@ -1,6 +1,7 @@
 import { EventEmitter } from 'events';
 
 import { AccountUpdate } from "./types";
+import { CALLBACK_EVENT_NAME } from "./constants";
 import { getAccountUpdateKey } from "./helpers";
 
 export default class AccountUpdatesManager extends EventEmitter {   
@@ -29,7 +30,7 @@ export default class AccountUpdatesManager extends EventEmitter {
         if (updateKey) {
             const callback = setTimeout(() => {
                 console.log("\nAccount update callback:", accountUpdate);
-                this.emit("callbackResult");
+                this.emit(CALLBACK_EVENT_NAME);
             }, accountUpdate.callbackTimeMs);
             
             this.callbacks.set(updateKey, callback);
@@ -50,7 +51,7 @@ export default class AccountUpdatesManager extends EventEmitter {
         if (this.callbacks.has(updateKey)) {
             clearTimeout(this.callbacks.get(updateKey));
             this.callbacks.delete(updateKey);
-            console.log(`\nIgnored old callback: ${updateKey}:${accountUpdate.version}`);
+            console.log(`\nCanceled old callback: ${updateKey}:${accountUpdate.version}`);
         }
 
         return updateKey;
