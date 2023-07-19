@@ -32,8 +32,10 @@ export default class AccountUpdatesManager extends EventEmitter {
             setTimeout(() => {
                 let callbackSuccessful = false;
                 if (this.accountUpdates.get(updateKey)!.version === accountUpdate.version) {
-                    console.log('\nAccount update callback:', accountUpdate);
+                    console.log("\nAccount update callback:", accountUpdate);
                     callbackSuccessful = true;
+                } else {
+                    console.log("\nIgnored old callback");
                 }
                 this.emit("callbackResult", accountUpdate, callbackSuccessful);
             }, accountUpdate.callbackTimeMs);
@@ -43,11 +45,12 @@ export default class AccountUpdatesManager extends EventEmitter {
     addAccountUpdate(accountUpdate: AccountUpdate): string | undefined {
         const updateKey = getAccountUpdateKey(accountUpdate.id, accountUpdate.parentProgramSubType);
         if (this.accountUpdates.has(updateKey) && this.accountUpdates.get(updateKey)!.version >= accountUpdate.version) {
-            console.log('Ignored old account update');
+            console.log("Ignored old account update");
             return undefined;
         }
 
         this.accountUpdates.set(updateKey, accountUpdate);
+        console.log("Indexed:", updateKey);
         return updateKey;
     }
 
